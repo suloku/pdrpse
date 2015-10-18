@@ -44,7 +44,7 @@ int main(int argc, char**argv)
 	APT_GetProgramID(NULL, &TID);
 	aptCloseSession();
 */
-	printf("Pokemon Dream Radar Pocket Save Editor v0.2\n");
+	printf("Pokemon Dream Radar Pocket Save Editor v0.3\n");
 	printf("------------------------------by suloku '15\n\n");
 
 	int exitnow = 0;
@@ -72,6 +72,7 @@ int main(int argc, char**argv)
 	u32 orbs_cash;
 	u32 orbs_totalcol;
 	u32 orbs_reward;
+	u8 clouds;
 	u8 gen4ext;
 	u16 gen4catch;
 	u8 beam;
@@ -95,10 +96,13 @@ int main(int argc, char**argv)
 		memcpy (&beam, buffer+0x71, sizeof(u8));
 		memcpy (&battery, buffer+0x72, sizeof(u8));
 		memcpy (&visor, buffer+0x73, sizeof(u8));
+		//Clouds
+		memcpy (&clouds, buffer+0x74, sizeof(u8));
 		//Stockable items
 		memcpy (&vortex, buffer+0x268, sizeof(u8));
 		memcpy (&dragnet, buffer+0x269, sizeof(u8));
 		memcpy (&batcharge, buffer+0x26A, sizeof(u8));
+
 		int cursor = 0;
 		while (aptMainLoop())
 		{
@@ -106,7 +110,7 @@ int main(int argc, char**argv)
 			hidScanInput();
 			gotoxy(0,0);
 			
-			printf("Pokemon Dream Radar Pocket Save Editor v0.1\n");
+			printf("Pokemon Dream Radar Pocket Save Editor v0.3\n");
 			printf("------------------------------by suloku '15\n\n");
 			
 			printf ("\tOrbs Cash: %06lu                           \n", orbs_cash);
@@ -161,8 +165,9 @@ int main(int argc, char**argv)
 			}
 	
 			printf("\n\tX: unlock next reward\n");
+			printf("\tL: refill clouds (current: %02d/%02d)\n", clouds, 10+(5*visor));
 			printf("\nPress START to exit\n");
-			printf("Press SELECT to save & exit\n");
+			printf("Press SELECT to save & exit");
 			
 			u32 kDown = hidKeysDown();
 			u32 kHeld = hidKeysHeld();
@@ -345,6 +350,25 @@ int main(int argc, char**argv)
 			if (kDown & KEY_X){
 				orbs_reward = 3000;
 			}
+			if (kDown & KEY_L){
+				switch (visor){
+					case 0:
+						clouds = 10;
+						break;
+					case 1:
+						clouds = 15;
+						break;
+					case 2:
+						clouds = 20;
+						break;
+					case 3:
+						clouds = 25;
+						break;
+					case 4:
+						clouds = 30;
+						break;
+				}
+			}
 			if (kDown & KEY_A && cursor > LUGIA){
 				beam = battery = visor = 4;
 			}
@@ -401,9 +425,11 @@ int main(int argc, char**argv)
 			memcpy (buffer+0x26E, &gen4ext, sizeof(u8));
 			memcpy (buffer+0x272, &gen4catch, sizeof(u16));
 			//Upgrades
-			memcpy (buffer+0x72, &beam, sizeof(u8));
-			memcpy (buffer+0x73, &battery, sizeof(u8));
-			memcpy (buffer+0x74, &visor, sizeof(u8));
+			memcpy (buffer+0x71, &beam, sizeof(u8));
+			memcpy (buffer+0x72, &battery, sizeof(u8));
+			memcpy (buffer+0x73, &visor, sizeof(u8));
+			//Clouds
+			memcpy (buffer+0x74, &clouds, sizeof(u8));
 			//Stockable items
 			memcpy (buffer+0x268, &vortex, sizeof(u8));
 			memcpy (buffer+0x269, &dragnet, sizeof(u8));
